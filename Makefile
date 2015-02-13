@@ -24,7 +24,7 @@ STATIC_DIR	= static
 C_HEAD_DIR	= debug
 
 LIBFT_STATIC= libft/libft.a
-LIBFT_DEBUG	= libft/libft_debug.a
+LIBFT_DEBUG	= libft/libft.a
 LIBFT_HEAD	= libft/includes/
 
 STATIC_OBJ	= $(patsubst %.c,$(STATIC_DIR)/%.o,$(SRC))
