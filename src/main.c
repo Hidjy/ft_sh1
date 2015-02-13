@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <sys/wait.h>
 
-void	execute(char *bin, char *args[], char *strenv[])
+void	execute(char *bin, char **args, char **strenv)
 {
 	pid_t	father;
 
@@ -32,34 +32,36 @@ void	execute(char *bin, char *args[], char *strenv[])
 	}
 }
 
-int		command(char *line)
+int		command(char *line, t_list *env)
 {
 	char	*command;
 	char	**args;
+	char	**strenv;
 
 	if (ft_strchr(line, ' ') == NULL)
 		command = ft_strdup(line);
 	else
 		command = ft_strsub(line, 0, ft_strchr(line, ' ') - line);
 	args = ft_strsplit(line, ' ');
-	execute(command, args, NULL);
+	strenv = env_to_str(env);
+	execute(command, args, strenv);
 	return (0);
 }
 
-int		main()
+int		main(int argc, char **argv, char **envp)
 {
 	char	*line;
 	t_list	*env;
-	char	**strenv;
 
-	(void)strenv;
-	(void)env;
+	(void)argc;
+	(void)argv;
+	env = env_load(envp);
 	while (666)
 	{
 		ft_putstr("$> ");
 		get_next_line(0, &line);
-		command(line);
-		ft_putendl("");
+		command(line, env);
+		ft_putchar('\n');
 	}
 	return (0);
 }

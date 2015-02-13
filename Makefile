@@ -14,7 +14,8 @@ STATIC_EXE	= ft_minishell1
 DEBUG_EXE	= ft_minishell1_debug
 
 SRC		=	main.c			\
-			get_next_line.c
+			get_next_line.c	\
+			env.c
 
 HEAD_DIR	= includes
 SRC_DIR		= src
