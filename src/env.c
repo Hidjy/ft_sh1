@@ -11,24 +11,24 @@
 /* ************************************************************************** */
 
 #include "libft.h"
+#include "minishell.h"
+#include <stdlib.h>
 
 t_list	*load_env(char **envp)
 {
 	t_list		*env;
 	t_list_elem	elem;
-	char		*key;
-	char		*data;
-	char		*tmp;
+	char		**tmp;
 	char		*chr;
 
 	env = NULL;
 	tmp = envp;
-	while (envp != NULL)
+	while (tmp != NULL)
 	{
 		chr = ft_strchr(*tmp, '=');
 		elem.key = ft_strsub(*tmp, 0, chr - *tmp);
-		elem.data = ft_strsub(chr + 1);
-		env = ft_lstadd(&env, ft_lstnew(elem, sizeof(t_list_elem)))
+		elem.data = ft_strdup(chr + 1);
+		ft_lstadd(&env, ft_lstnew(&elem, sizeof(t_list_elem)));
 		tmp++;
 	}
 	return (env);
@@ -46,10 +46,10 @@ char	**env_to_str(t_list *env)
 	i = 0;
 	while (tmp != NULL)
 	{
-		elem = tmp->data;
+		elem = tmp->content;
 		strenv[i] = (char *)malloc(ft_strlen(elem->key)
 			+ ft_strlen(elem->data) + 2);
-		ft_kebab(strenv + i, elem->key, "=", elem->data, NULL)
+		ft_kebab(strenv[i], elem->key, "=", elem->data, NULL);
 		tmp = tmp->next;
 	}
 	return (strenv);
