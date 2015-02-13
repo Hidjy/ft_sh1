@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef MINISHELL_H
+# define MINISHELL_H
 
 # include "libft.h"
 
@@ -20,5 +20,8 @@ typedef struct	s_list_elem
 	char		*key;
 	char		*data;
 }				t_list_elem;
+
+t_list			*load_env(char **envp);
+char			**env_to_str(t_list *env);
 
 #endif

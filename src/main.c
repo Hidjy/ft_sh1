@@ -55,7 +55,7 @@ int		main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	env = env_load(envp);
+	env = load_env(envp);
 	while (666)
 	{
 		ft_putstr("$> ");

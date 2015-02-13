@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft/libft.h"
+#include "libft.h"
 
 t_list	*load_env(char **envp)
 {
@@ -55,12 +55,12 @@ char	**env_to_str(t_list *env)
 	return (strenv);
 }
 
-char	*get_env(t_list *env, char *key)
-{
-
-}
-
-char	*add_path(char **paths, char *command)
-{
-
-}
+// char	*get_env(t_list *env, char *key)
+// {
+//
+// }
+//
+// char	*add_path(char **paths, char *command)
+// {
+//
+// }
