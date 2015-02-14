@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <sys/wait.h>
 
-void	execute(char *bin, char **args, char **strenv)
+int		execute(char *bin, char **args, char **strenv)
 {
 	pid_t	father;
 
@@ -30,11 +30,46 @@ void	execute(char *bin, char **args, char **strenv)
 	{
 		execve(bin, args, strenv);
 	}
+	return (1);
+}
+
+void	print_strtab(char **strtab)
+{
+	char	**tmp;
+
+	tmp = strtab;
+	while (tmp != NULL && *tmp != 0)
+	{
+		ft_putendl(*tmp);
+		tmp++;
+	}
+}
+
+void	env_print(t_list *env)
+{
+	t_list			*tmp;
+	t_list_elem		*elem;
+	int				i;
+
+	tmp = env;
+	i = 0;
+	while (tmp != NULL)
+	{
+		elem = tmp->content;
+		ft_putnbr(i);
+		ft_putstr(": ");
+		ft_putstr(elem->key);
+		ft_putstr("=");
+		ft_putendl(elem->data);
+		tmp = tmp->next;
+		i++;
+	}
 }
 
 int		command(char *line, t_list *env)
 {
 	char	*command;
+	char	*bin;
 	char	**args;
 	char	**strenv;
 
@@ -44,7 +79,12 @@ int		command(char *line, t_list *env)
 		command = ft_strsub(line, 0, ft_strchr(line, ' ') - line);
 	args = ft_strsplit(line, ' ');
 	strenv = env_to_str(env);
-	execute(command, args, strenv);
+	//env_print(env);
+	//print_strtab(strenv);
+	bin = add_path(env, command);
+	bin = command;
+	if (execute(bin, args, strenv) == -1)
+		ft_putendl("AAAAAAAAAAAH ERROR !!!!!");
 	return (0);
 }
 

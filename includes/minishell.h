@@ -21,7 +21,11 @@ typedef struct	s_list_elem
 	char		*data;
 }				t_list_elem;
 
+void			print_strtab(char **strtab);
+
 t_list			*load_env(char **envp);
 char			**env_to_str(t_list *env);
+char			*get_data(t_list *env, char *key);
+char			*add_path(t_list *env, char *bin);
 
 #endif
