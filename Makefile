@@ -58,7 +58,7 @@ $(LIBFT_STATIC):
 	make -C libft/ libft.a
 
 $(LIBFT_DEBUG):
-	make -C libft/ libft_debug.a
+	make -C libft/ libft.a
 
 .PHONY: clean fclean re debug norme
 

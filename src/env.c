@@ -23,7 +23,7 @@ t_list	*load_env(char **envp)
 
 	env = NULL;
 	tmp = envp;
-	while (tmp != NULL)
+	while (tmp != NULL && *tmp != 0)
 	{
 		chr = ft_strchr(*tmp, '=');
 		elem.key = ft_strsub(*tmp, 0, chr - *tmp);

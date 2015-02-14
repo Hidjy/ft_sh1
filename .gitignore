@@ -28,3 +28,4 @@
 *.x86_64
 *.hex
 ft_minishell1
+ft_minishell1_debug
