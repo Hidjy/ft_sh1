@@ -49,24 +49,19 @@ void	env_print(t_list *env)
 {
 	t_list			*tmp;
 	t_list_elem		*elem;
-	int				i;
 
 	tmp = env;
-	i = 0;
 	while (tmp != NULL)
 	{
 		elem = tmp->content;
-		ft_putnbr(i);
-		ft_putstr(": ");
 		ft_putstr(elem->key);
 		ft_putstr("=");
 		ft_putendl(elem->data);
 		tmp = tmp->next;
-		i++;
 	}
 }
 
-int		cd(char **args, t_list *env)
+int		c_cd(char **args, t_list *env)
 {
 	char	*path;
 	char	*home;
@@ -100,6 +95,12 @@ int		cd(char **args, t_list *env)
 	return (0);
 }
 
+int		c_env(t_list *env)
+{
+	env_print(env);
+	return (0);
+}
+
 int		command(char *line, t_list *env)
 {
 	char	*command;
@@ -118,7 +119,9 @@ int		command(char *line, t_list *env)
 	if (ft_strcmp(command, "exit") == 0)
 		exit(0);
 	else if (ft_strcmp(command, "cd") == 0)
-		return (cd(args, env));
+		return (c_cd(args, env));
+	else if (ft_strcmp(command, "env") == 0)
+		return (c_env(env));
 	bin = add_path(env, command);
 	if (bin == NULL)
 		ft_putendl("CA EXISTE PAS TA MERDE");
