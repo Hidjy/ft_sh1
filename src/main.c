@@ -66,6 +66,40 @@ void	env_print(t_list *env)
 	}
 }
 
+int		cd(char **args, t_list *env)
+{
+	char	*path;
+	char	*home;
+
+	home = get_data(env, "HOME");
+	if (home != NULL)
+	{
+		if (args != NULL && args[1] != 0 && args[1][0] == '~')
+			path = ft_strjoin(home, args[1] + 1);
+		else if (args != NULL && args[1] != 0)
+			path = ft_strdup(args[1]);
+		else
+			path = ft_strdup(home);
+	}
+	else
+	{
+		if (args != NULL && args[1] != 0)
+			path = ft_strdup(args[1]);
+		else
+		{
+			ft_putendl("YAPA DE HOME");
+			return (0);
+		}
+	}
+
+	if (chdir(path) != 0)
+	{
+		ft_putstr("cd: no such directory: ");
+		ft_putendl(path);
+	}
+	return (0);
+}
+
 int		command(char *line, t_list *env)
 {
 	char	*command;
@@ -81,8 +115,13 @@ int		command(char *line, t_list *env)
 	strenv = env_to_str(env);
 	//env_print(env);
 	//print_strtab(strenv);
+	if (ft_strcmp(command, "exit") == 0)
+		exit(0);
+	else if (ft_strcmp(command, "cd") == 0)
+		return (cd(args, env));
 	bin = add_path(env, command);
-	bin = command;
+	if (bin == NULL)
+		ft_putendl("CA EXISTE PAS TA MERDE");
 	if (execute(bin, args, strenv) == -1)
 		ft_putendl("AAAAAAAAAAAH ERROR !!!!!");
 	return (0);
@@ -101,7 +140,7 @@ int		main(int argc, char **argv, char **envp)
 		ft_putstr("$> ");
 		get_next_line(0, &line);
 		command(line, env);
-		ft_putchar('\n');
+		//ft_putchar('\n');
 	}
 	return (0);
 }

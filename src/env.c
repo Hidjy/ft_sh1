@@ -13,6 +13,7 @@
 #include "libft.h"
 #include "minishell.h"
 #include <stdlib.h>
+#include <sys/stat.h>
 
 t_list	*load_env(char **envp)
 {
@@ -74,13 +75,25 @@ char	*get_data(t_list *env, char *key)
 
 char	*add_path(t_list *env, char *bin)
 {
-	char	*path;
-	char	**paths;
+	char		*path;
+	char		**paths;
+	char		**tmp;
+	char		buff[1024];
+	struct stat	stat_buff;
 
 	path = get_data(env, "PATH");
 	if (path == NULL)
 		return (bin);
 	paths = ft_strsplit(path, ':');
-	//print_strtab(paths);
-	return (bin);
+	if (stat(bin, &stat_buff) == 0)
+		return (bin);
+	tmp = paths;
+	while (tmp != NULL && *tmp != 0)
+	{
+		ft_kebab(buff, *tmp, "/", bin, NULL);
+		if (stat(buff, &stat_buff) == 0)
+			return (ft_strdup(buff));
+		tmp++;
+	}
+	return (NULL);
 }
