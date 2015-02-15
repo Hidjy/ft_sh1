@@ -13,13 +13,12 @@
 #include "get_next_line.h"
 #include "minishell.h"
 #include "libft.h"
-#include <unistd.h>
-#include <stdio.h>
 #include <sys/wait.h>
 
-int		execute(char *bin, char **args, char **strenv)
+int		execute(char *bin, char **args, t_list *env)
 {
 	pid_t	father;
+	char	**strenv;
 
 	father = fork();
 	if (father > 0)
@@ -28,6 +27,7 @@ int		execute(char *bin, char **args, char **strenv)
 	}
 	if (father == 0)
 	{
+		strenv = env_to_str(env);/*ho putin con, ca fuit fada!!*/
 		execve(bin, args, strenv);
 	}
 	return (1);
@@ -45,87 +45,32 @@ void	print_strtab(char **strtab)
 	}
 }
 
-void	env_print(t_list *env)
-{
-	t_list			*tmp;
-	t_list_elem		*elem;
-
-	tmp = env;
-	while (tmp != NULL)
-	{
-		elem = tmp->content;
-		ft_putstr(elem->key);
-		ft_putstr("=");
-		ft_putendl(elem->data);
-		tmp = tmp->next;
-	}
-}
-
-int		c_cd(char **args, t_list *env)
-{
-	char	*path;
-	char	*home;
-
-	home = get_data(env, "HOME");
-	if (home != NULL)
-	{
-		if (args != NULL && args[1] != 0 && args[1][0] == '~')
-			path = ft_strjoin(home, args[1] + 1);
-		else if (args != NULL && args[1] != 0)
-			path = ft_strdup(args[1]);
-		else
-			path = ft_strdup(home);
-	}
-	else
-	{
-		if (args != NULL && args[1] != 0)
-			path = ft_strdup(args[1]);
-		else
-		{
-			ft_putendl("YAPA DE HOME");
-			return (0);
-		}
-	}
-
-	if (chdir(path) != 0)
-	{
-		ft_putstr("cd: no such directory: ");
-		ft_putendl(path);
-	}
-	return (0);
-}
-
-int		c_env(t_list *env)
-{
-	env_print(env);
-	return (0);
-}
-
 int		command(char *line, t_list *env)
 {
-	char	*command;
 	char	*bin;
 	char	**args;
-	char	**strenv;
 
-	if (ft_strchr(line, ' ') == NULL)
-		command = ft_strdup(line);
-	else
-		command = ft_strsub(line, 0, ft_strchr(line, ' ') - line);
+	line = ft_strtrim(line);
+	if (!line || !line[0])
+		return (0);
 	args = ft_strsplit(line, ' ');
-	strenv = env_to_str(env);
-	//env_print(env);
-	//print_strtab(strenv);
-	if (ft_strcmp(command, "exit") == 0)
-		exit(0);
-	else if (ft_strcmp(command, "cd") == 0)
-		return (c_cd(args, env));
-	else if (ft_strcmp(command, "env") == 0)
+	if (!args || !args[0] || !args[0][0])
+		return (0);
+	if (ft_strcmp(args[0], "exit") == 0)
+	{
+		ft_putendl("exit");
+		exit(2);
+	}
+	else if (ft_strcmp(args[0], "cd") == 0)
+		return (c_cd(env, args));
+	else if (ft_strcmp(args[0], "env") == 0)
 		return (c_env(env));
-	bin = add_path(env, command);
+	else if (ft_strcmp(args[0], "unsetenv") == 0)
+		return (c_unsetenv(&env, args));
+	bin = add_path(env, args[0]);
 	if (bin == NULL)
 		ft_putendl("CA EXISTE PAS TA MERDE");
-	if (execute(bin, args, strenv) == -1)
+	else if (execute(bin, args, env) == -1)
 		ft_putendl("AAAAAAAAAAAH ERROR !!!!!");
 	return (0);
 }
@@ -143,7 +88,6 @@ int		main(int argc, char **argv, char **envp)
 		ft_putstr("$> ");
 		get_next_line(0, &line);
 		command(line, env);
-		//ft_putchar('\n');
 	}
 	return (0);
 }

@@ -15,6 +15,7 @@ DEBUG_EXE	= ft_minishell1_debug
 
 SRC		=	main.c			\
 			get_next_line.c	\
+			command.c		\
 			env.c
 
 HEAD_DIR	= includes
