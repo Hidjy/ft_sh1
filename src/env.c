@@ -48,8 +48,8 @@ char	**env_to_str(t_list *env)
 	while (tmp != NULL)
 	{
 		elem = tmp->content;
-		strenv[i] = ft_strnew(ft_strlen(elem->key) + ft_strlen(elem->data) + 1);
-		ft_kebab(strenv[i], elem->key, "=", elem->data, NULL);
+		strenv[i] = ft_strjoin(elem->key, "=");
+		strenv[i] = ft_strjoin(strenv[i], elem->data);
 		tmp = tmp->next;
 		i++;
 	}
