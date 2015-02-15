@@ -30,5 +30,6 @@ char			*add_path(t_list *env, char *bin);
 int				c_cd(t_list *env, char **args);
 int				c_env(t_list *env);
 int				c_unsetenv(t_list **env, char **args);
+int				c_setenv(t_list *env, char **args);
 
 #endif

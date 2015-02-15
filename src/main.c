@@ -67,6 +67,8 @@ int		command(char *line, t_list *env)
 		return (c_env(env));
 	else if (ft_strcmp(args[0], "unsetenv") == 0)
 		return (c_unsetenv(&env, args));
+	else if (ft_strcmp(args[0], "setenv") == 0)
+		return (c_setenv(env, args));
 	bin = add_path(env, args[0]);
 	if (bin == NULL)
 		ft_putendl("CA EXISTE PAS TA MERDE");
