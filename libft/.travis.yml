@@ -1,9 +1,9 @@
 language: c
 
 compiler:
-- gcc
+  - gcc
 
 install:
 
 script:
-- make
+  - make -j

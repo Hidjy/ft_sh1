@@ -1,99 +1,115 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   path.c                                             :+:      :+:    :+:   */
+/*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: laime <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/02/11 17:45:17 by laime             #+#    #+#             */
-/*   Updated: 2015/02/11 17:45:18 by laime            ###   ########.fr       */
+/*   Created: 2015/03/20 15:50:31 by laime             #+#    #+#             */
+/*   Updated: 2015/03/20 15:50:35 by laime            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include "minishell.h"
-#include <stdlib.h>
-#include <sys/stat.h>
+#include "sh_1.h"
 
-t_list	*load_env(char **envp)
+t_list			*get_env(char *envp[])
 {
-	t_list		*env;
 	t_list_elem	elem;
+	t_list		*env;
 	char		**tmp;
 	char		*chr;
 
 	env = NULL;
 	tmp = envp;
-	while (tmp != NULL && *tmp != 0)
+	while (tmp && *tmp)
 	{
 		chr = ft_strchr(*tmp, '=');
 		elem.key = ft_strsub(*tmp, 0, chr - *tmp);
 		elem.data = ft_strdup(chr + 1);
-		ft_lstaddlast(&env, ft_lstnew(&elem, sizeof(t_list_elem)));
+		ft_lstsmartpushback(&env, ft_lstnew(&elem, sizeof(t_list_elem)));
 		tmp++;
 	}
 	return (env);
 }
 
-char	**env_to_str(t_list *env)
+char			*get_data(t_list *env, char *key)
 {
-	t_list			*tmp;
-	t_list_elem		*elem;
-	char			**strenv;
-	int				i;
+	t_list		*tmp;
+	t_list_elem	*elem;
 
 	tmp = env;
-	strenv = (char **)malloc(sizeof(char *) * (ft_lstlen(env) + 1));
-	i = 0;
-	while (tmp != NULL)
+	while (tmp)
 	{
 		elem = tmp->content;
-		strenv[i] = ft_strjoin(elem->key, "=");
-		strenv[i] = ft_strjoin(strenv[i], elem->data);
+		if (!ft_strcmp(elem->key, key))
+			return (elem->data);
 		tmp = tmp->next;
+	}
+	return (NULL);
+}
+
+t_list_elem		*get_elem(t_list *env, char *key)
+{
+	t_list		*tmp;
+	t_list_elem	*elem;
+
+	tmp = env;
+	while (tmp)
+	{
+		elem = tmp->content;
+		if (!ft_strcmp(elem->key, key))
+			return (elem);
+		tmp = tmp->next;
+	}
+	return (NULL);
+}
+
+char			*get_path(t_list *env, char *bin)
+{
+	t_path		path;
+
+	path.path = get_data(env, "PATH");
+	if (!path.path || !lstat(bin, &path.stat_buff))
+		return (ft_strdup(bin));
+	path.paths = ft_strsplit(path.path, ':');
+	path.tmp = path.paths;
+	path.ret = NULL;
+	while (*path.tmp)
+	{
+		ft_kebab(path.buff, *(path.tmp), "/", bin, NULL);
+		if (!lstat(path.buff, &path.stat_buff))
+		{
+			if (!(path.stat_buff.st_mode & 1))
+				path.ret = (char*)1;
+			else
+				path.ret = ft_strdup(path.buff);
+			break ;
+		}
+		(path.tmp)++;
+	}
+	free_path(&path);
+	return (path.ret);
+}
+
+char			**env_to_str(t_list *env)
+{
+	char		**strenv;
+	t_list		*tmp;
+	t_list_elem	*elem;
+	int			i;
+	int			size;
+
+	tmp = env;
+	size = ft_lstlen(env);
+	strenv = (char**)ft_malloc(sizeof(char*) * (size + 1));
+	i = 0;
+	while (tmp)
+	{
+		elem = tmp->content;
+		strenv[i] = ft_burger(elem->key, '=', elem->data);
 		i++;
+		tmp = tmp->next;
 	}
 	strenv[i] = NULL;
 	return (strenv);
-}
-
-char	*get_data(t_list *env, char *key)
-{
-	t_list			*tmp;
-	t_list_elem		*elem;
-
-	tmp = env;
-	while (tmp != NULL)
-	{
-		elem = tmp->content;
-		if (ft_strcmp(elem->key, key) == 0)
-			return(elem->data);
-		tmp = tmp->next;
-	}
-	return (NULL);
-}
-
-char	*add_path(t_list *env, char *bin)
-{
-	char		*path;
-	char		**paths;
-	char		**tmp;
-	char		buff[1024];
-	struct stat	stat_buff;
-
-	path = get_data(env, "PATH");
-	if (path == NULL)
-		return (bin);
-	paths = ft_strsplit(path, ':');
-	if (stat(bin, &stat_buff) == 0)
-		return (bin);
-	tmp = paths;
-	while (tmp != NULL && *tmp != 0)
-	{
-		ft_kebab(buff, *tmp, "/", bin, NULL);
-		if (stat(buff, &stat_buff) == 0)
-			return (ft_strdup(buff));
-		tmp++;
-	}
-	return (NULL);
 }

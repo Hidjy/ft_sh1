@@ -5,114 +5,115 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: laime <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/02/11 17:45:17 by laime             #+#    #+#             */
-/*   Updated: 2015/02/11 17:45:18 by laime            ###   ########.fr       */
+/*   Created: 2015/03/20 15:50:14 by laime             #+#    #+#             */
+/*   Updated: 2015/03/20 17:20:46 by laime            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include "minishell.h"
-#include <unistd.h>
+#include "sh_1.h"
+#include <stdio.h>
 
-int		c_cd(t_list *env, char **args)
+int		line_trim(char **line)
 {
-	char	*path;
-	char	*home;
-
-	home = get_data(env, "HOME");
-	if (home != NULL)
-	{
-		if (args != NULL && args[1] != 0 && args[1][0] == '~')
-			path = ft_strjoin(home, args[1] + 1);
-		else if (args != NULL && args[1] != 0)
-			path = ft_strdup(args[1]);
-		else
-			path = ft_strdup(home);
-	}
-	else
-	{
-		if (args != NULL && args[1] != 0)
-			path = ft_strdup(args[1]);
-		else
-		{
-			ft_putendl("YAPA DE HOME");
-			return (0);
-		}
-	}
-
-	if (chdir(path) != 0)
-	{
-		ft_putstr("cd: no such directory: ");
-		ft_putendl(path);
-	}
-	return (0);
-}
-
-int		c_env(t_list *env)
-{
-	t_list			*tmp;
-	t_list_elem		*elem;
-
-	tmp = env;
-	while (tmp != NULL)
-	{
-		elem = tmp->content;
-		ft_putstr(elem->key);
-		ft_putstr("=");
-		ft_putendl(elem->data);
-		tmp = tmp->next;
-	}
-	return (0);
-}
-
-int		c_setenv(t_list *env, char **args)
-{
-	t_list			*tmp;
-	t_list_elem		*elem;
-	t_list_elem		new;
-
-	tmp = env;
-	if (!args[1] || !args[1][0])
+	*line = ft_strclean(*line);
+	if (!*line || !*line[0])
 		return (0);
-	while (tmp != NULL)
-	{
-		elem = tmp->content;
-		if (!ft_strcmp(elem->key, args[1]))
-		{
-			elem->data = args[2];
-			return(0);
-		}
-		tmp = tmp->next;
-	}
-	new.key = args[1];
-	new.data = args[2];
-	ft_lstaddlast(&env, ft_lstnew(&new, sizeof(t_list_elem)));
-	return (0);
+	return (1);
 }
 
-int		c_unsetenv(t_list **env, char **args)
+void	args_filter(t_list *env, char **args, char *line)
 {
-	t_list			**tmp;
-	t_list			*last;
-	t_list_elem		*elem;
+	int		i;
 
-	tmp = env;
-	last = NULL;
-	if (!args[1] || !args[1][0])
-		return (0);
-	while (tmp != NULL)
+	i = 0;
+	(void)line;
+	while (args[i])
 	{
-		elem = (*tmp)->content;
-		if (!ft_strcmp(elem->key, args[1]))
+		if (!ft_strcmp(args[i], "~"))
 		{
-			if (!(*tmp)->next)
-				last->next = NULL;
-			else
-				ft_lstdelnode(tmp);
-			return (0);
+			free(args[i]);
+			args[i] = ft_strdup(get_data(env, "HOME"));
 		}
-		last = *tmp;
-		*tmp = (*tmp)->next;
+		i++;
+	}
+}
+
+int		command(char *line, t_list **env)
+{
+	char	*bin;
+	char	**args;
+
+	if (!line_trim(&line))
+		return (magic_free(line));
+	args = ft_strsplit(line, ' '), args_filter(*env, args, line);
+	if (!args || !args[0] || !args[0][0])
+		return (magic_free(line));
+	bin = get_path(*env, args[0]);
+	if (!ft_strcmp(args[0], "exit"))
+		ft_exit(args, 0);
+	else if (!ft_strcmp(args[0], "cd"))
+		c_cd(*env, args);
+	else if ((!ft_strcmp(args[0], "env") || !ft_strcmp(args[0], "setenv"))
+			&& !args[1])
+		c_env(*env, args);
+	else if (ft_strcmp(args[0], "unsetenv") == 0)
+		c_unsetenv(env, args);
+	else if (ft_strcmp(args[0], "setenv") == 0)
+		c_setenv(env, args);
+	else if (bin == (char*)1)
+		print_error(1, args[0]);
+	else if (bin == NULL || exec(bin, args, *env) == -1)
+		print_error(2, args[0]);
+	return (command_free(args, line, bin));
+}
+
+int		exec(char *bin, char *args[], t_list *env)
+{
+	pid_t			father;
+	char			**strenv;
+	struct stat		stat_buff;
+
+	lstat(bin, &stat_buff);
+
+	if (!(stat_buff.st_mode & 010) | S_ISDIR(stat_buff.st_mode))
+		return (print_error(1, bin));
+	if (!S_ISREG(stat_buff.st_mode) || !(stat_buff.st_mode & 1))
+		return (print_error(2, bin));
+	if (!ft_strchr(bin, '/'))
+		return (-1);
+	father = fork();
+	if (father > 0)
+		waitpid(father, NULL, 0);
+	if (!father)
+	{
+		strenv = env_to_str(env);
+		signal(SIGINT, SIG_DFL);
+		if (execve(bin, args, strenv) < 0)
+		{
+			ft_putstr("ft_minishell1: exec format error: ");
+			ft_putendl_fd(bin, 2);
+			exit(2);
+		}
+	}
+	return (1);
+}
+
+int		print_error(int ind, char *args)
+{
+	if (ind == 1)
+	{
+		ft_putstr_fd(args, 2);
+		ft_putendl_fd(": permission denied.", 2);
+	}
+	else if (ind == 2)
+	{
+		ft_putstr_fd(args, 2);
+		ft_putendl_fd(": command not found.", 2);
+	}
+	else if (ind == 3)
+	{
+		ft_putstr_fd("cd: no such file or directory: ", 2);
+		ft_putendl_fd(args, 2);
 	}
 	return (0);
 }

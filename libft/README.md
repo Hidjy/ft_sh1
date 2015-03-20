@@ -1,11 +1,4 @@
-# libft
-![](https://travis-ci.org/Hidjy/libft.svg?branch=master)
+libft42
+=======
+[![Build Status](https://travis-ci.org/Vallium/libft42.svg)](https://travis-ci.org/Vallium/libft42)
 
-In our first project at *42*, the **libft**, we were asked to create our own
-library.
-
-We had to recode some **basic functions** (like `memset` or `strncmp`), create
-other **imposed ones** (like `itoa` or `strsplit`) and then add **personnal
-functions** that can be usefull for the other C projects.
-
-There's only *one function per file*.
