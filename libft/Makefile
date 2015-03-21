@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: aalliot  <aalliot@student.42.fr>           +#+  +:+       +#+         #
+#    By: laime <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2014/11/10 11:30:22 by aalliot           #+#    #+#              #
-#    Updated: 2015/02/15 19:34:52 by aalliot          ###   ########.fr        #
+#    Created: 2015/03/21 18:33:47 by laime             #+#    #+#              #
+#    Updated: 2015/03/21 18:34:06 by laime            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -104,7 +104,7 @@ STATIC_DIR	= static
 DYNAMIC_DIR	= dynamic
 
 CC			= gcc
-NORMINETTE	= ~/project/colorminette/colorminette
+NORMINETTE	= norminette
 
 UNAME_S := $(shell uname -s)
 

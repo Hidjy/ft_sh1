@@ -6,7 +6,7 @@
 /*   By: laime <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/03/20 15:50:14 by laime             #+#    #+#             */
-/*   Updated: 2015/03/20 17:20:46 by laime            ###   ########.fr       */
+/*   Updated: 2015/03/21 15:33:04 by laime            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ int		exec(char *bin, char *args[], t_list *env)
 	struct stat		stat_buff;
 
 	lstat(bin, &stat_buff);
-
 	if (!(stat_buff.st_mode & 010) | S_ISDIR(stat_buff.st_mode))
 		return (print_error(1, bin));
 	if (!S_ISREG(stat_buff.st_mode) || !(stat_buff.st_mode & 1))
@@ -89,11 +88,9 @@ int		exec(char *bin, char *args[], t_list *env)
 		strenv = env_to_str(env);
 		signal(SIGINT, SIG_DFL);
 		if (execve(bin, args, strenv) < 0)
-		{
-			ft_putstr("ft_minishell1: exec format error: ");
-			ft_putendl_fd(bin, 2);
+			ft_putstr("ft_minishell1: exec format error: "),
+			ft_putendl_fd(bin, 2),
 			exit(2);
-		}
 	}
 	return (1);
 }
